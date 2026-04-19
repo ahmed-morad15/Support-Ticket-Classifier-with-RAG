@@ -104,7 +104,7 @@ pip install -r requirements.txt
 
 ---
 
-## ▶ Run the Project
+##  Run the Project
 
 ### Start Flask Server
 
