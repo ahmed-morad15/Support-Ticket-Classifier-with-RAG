@@ -1,0 +1,13 @@
+langchain==0.2.14
+langchain-core==0.2.38
+langchain-community==0.2.12
+langchain-groq==0.1.9
+langchain-huggingface==0.0.3
+langchain-text-splitters==0.2.4
+
+sentence-transformers
+faiss-cpu
+python-dotenv
+pydantic<2
+
+Flask==2.2.5
