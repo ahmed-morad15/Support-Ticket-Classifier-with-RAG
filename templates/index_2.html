@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Support Ticket Assistant</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f7fb;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #1e293b;
+            margin-bottom: 30px;
+            background: white;
+            padding: 18px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+
+        .card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            color: #334155;
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 97%;
+            height: 100px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            resize: vertical;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #1e40af;
+        }
+
+        .button-container {
+            text-align: center;
+            margin-top: 10px;
+        }
+
+        .result {
+            margin-top: 18px;
+            padding: 15px;
+            border-radius: 10px;
+            background: #f8fafc;
+            border-left: 5px solid #2563eb;
+        }
+
+        .result p {
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .bulk-item {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 5px solid #2563eb;
+        }
+
+        .label {
+            font-weight: bold;
+            color: #1e293b;
+        }
+
+        .issue-text {
+            color: #475569;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>AI Support Ticket Assistant</h1>
+
+        <!-- Single Ticket -->
+        <div class="card">
+
+            <h2>Single Ticket Solution</h2>
+
+            <textarea
+                id="singleTicket"
+                placeholder="Enter your support ticket here..."
+            ></textarea>
+
+            <div class="button-container">
+                <button onclick="classifySingle()">
+                    Generate Solution
+                </button>
+            </div>
+
+            <div id="singleResult"></div>
+
+        </div>
+
+        <!-- Bulk Tickets -->
+        <div class="card">
+
+            <h2>Bulk Ticket Solutions</h2>
+
+            <textarea
+                id="bulkTickets"
+                placeholder="Enter multiple support tickets, one per line..."
+            ></textarea>
+
+            <div class="button-container">
+                <button onclick="classifyBulk()">
+                    Generate Solutions
+                </button>
+            </div>
+
+            <div id="bulkResults"></div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // Single Ticket
+        async function classifySingle() {
+
+            const text = document.getElementById('singleTicket').value;
+
+            const response = await fetch('/classify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ text }),
+            });
+
+            const data = await response.json();
+
+            document.getElementById('singleResult').innerHTML = `
+                <div class="result">
+                    <p>
+                        <span class="label">Issue:</span>
+                        <span class="issue-text">${text}</span>
+                    </p>
+
+                    <p>
+                        <span class="label">Solution:</span>
+                        ${data.solution}
+                    </p>
+                </div>
+            `;
+        }
+
+
+        // Bulk Tickets
+        async function classifyBulk() {
+
+            const texts = document.getElementById('bulkTickets').value
+                .split('\n')
+                .filter(text => text.trim() !== '');
+
+            const tickets = texts.map(text => ({ text }));
+
+            const response = await fetch('/bulk_classify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ tickets }),
+            });
+
+            const data = await response.json();
+
+            const resultsHtml = data.results.map(result => `
+
+                <div class="bulk-item">
+
+                    <p>
+                        <span class="label">Issue:</span>
+                        <span class="issue-text">${result.text}</span>
+                    </p>
+
+                    <p>
+                        <span class="label">Solution:</span>
+                        ${result.solution}
+                    </p>
+
+                </div>
+
+            `).join('');
+
+            document.getElementById('bulkResults').innerHTML = resultsHtml;
+        }
+
+    </script>
+
+</body>
+</html>

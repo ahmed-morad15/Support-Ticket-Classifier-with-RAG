@@ -14,11 +14,8 @@ from flask import Flask, request, jsonify, render_template
 # Load environment variables
 load_dotenv(dotenv_path="C:/Support-Ticket-Classifier-with-RAG/key.env")
 
-
-
 # Retrieve the API key from environment variables
 groq_api_key = os.getenv('GROQ_API_KEY')
-
 
 # Define classes to set up the knowledge base, model, vector store, and RAG chain
 class KnowledgeBase:
@@ -83,7 +80,6 @@ class ChainSetup:
         - Category 5 - Performance Issues
 
       3. If the input is unrelated to the background information or you're unsure of the classification, respond with 'Category Not Found!!!'.
-
       4. Return in this format:
         Category: <category label>
         Solution: <short solution based on context>
@@ -148,10 +144,7 @@ def classify_ticket():
         return jsonify({'error': 'Missing text in request'}), 400
 
     response = chain_setup.invoke_chain(data['text'])
-    #return jsonify({'category': response['answer']})
-    
     result_text = response['answer']
-    # parsing بسيط للعرض
     lines = result_text.split("\n")
 
     category = ""
@@ -178,10 +171,6 @@ def bulk_classify_tickets():
     for ticket in data['tickets']:
         if 'text' in ticket:
             response = chain_setup.invoke_chain(ticket['text'])
-           #results.append({
-                #'text': ticket['text'],
-                #'category': response['answer']
-           # })
 
             result_text = response['answer']
             lines = result_text.split("\n")
